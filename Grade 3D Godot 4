@@ -1,0 +1,42 @@
+@export var grid_size: Vector3 = Vector3(10, 0, 10) # Tamanho da grade (largura e profundidade)
+@export var cell_size: float = 1.0 # Tamanho de cada célula na grade
+@export var line_color: Color = Color(1, 1, 1) # Cor das linhas da grade
+
+func _ready():
+    create_grid()
+
+func create_grid():
+    # Limpa o mesh atual (caso exista)
+    var mesh = ArrayMesh.new()
+    var surface_tool = SurfaceTool.new()
+    surface_tool.begin(Mesh.PRIMITIVE_LINES)
+    
+    # Criação das linhas da grade
+    var half_size_x = (grid_size.x * cell_size) * 0.5
+    var half_size_z = (grid_size.z * cell_size) * 0.5
+    
+    # Definindo a cor da linha para o material
+    var material = StandardMaterial3D.new()
+    material.albedo_color = line_color  # A cor das linhas
+    
+    surface_tool.set_color(line_color)
+    
+    # Desenhando as linhas da grade
+    for x in range(0, int(grid_size.x) + 1):
+        var start = Vector3(x * cell_size - half_size_x, 0, -half_size_z)
+        var end = Vector3(x * cell_size - half_size_x, 0, half_size_z)
+        surface_tool.add_vertex(start)
+        surface_tool.add_vertex(end)
+    
+    for z in range(0, int(grid_size.z) + 1):
+        var start = Vector3(-half_size_x, 0, z * cell_size - half_size_z)
+        var end = Vector3(half_size_x, 0, z * cell_size - half_size_z)
+        surface_tool.add_vertex(start)
+        surface_tool.add_vertex(end)
+    
+    # Constrói o mesh
+    surface_tool.commit(mesh)
+    self.mesh = mesh
+    
+    # Aplica o material ao MeshInstance3D
+    self.material_override = material
